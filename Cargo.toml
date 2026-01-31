@@ -24,8 +24,6 @@ nightly_core_intrinsics = []
 nightly = [
     "nightly_core_intrinsics",
 ]
-# required features to run tests; additional features enable more tests
-dev = ["std"]
 
 [dependencies]
 allocator-api2 = { version = "0.4", default-features = false }

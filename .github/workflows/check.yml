@@ -21,25 +21,6 @@ jobs:
         with:
           command: check
 
-  test_nightly_devfeatures:
-    name: Test Suite (Nightly) Dev Features
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Install nightly toolchain
-        uses: dtolnay/rust-toolchain@nightly
-
-      - name: Run cargo test
-        uses: clechasseur/rs-cargo@v2
-        with:
-          command: test
-          args: --no-default-features --features dev
-
   test_nightly_allfeatures:
     name: Test Suite (Nightly) All Features
     runs-on: ${{ matrix.os }}
@@ -105,7 +86,7 @@ jobs:
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
-            components: clippy
+          components: clippy
 
       - uses: clechasseur/rs-cargo@v2
         with:

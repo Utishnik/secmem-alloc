@@ -81,7 +81,6 @@
 //! - `nightly` (requires nightly): Enable all nightly-only features (i.e. the
 //!   above two). Enabling this feature is highly recommended when a nightly
 //!   compiler is available. This feature requires a nightly compiler.
-//! - `dev`: Used internally for running tests.
 //!
 //!
 //! # MSRV Policy

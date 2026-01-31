@@ -5,7 +5,7 @@ check:
     cargo +nightly check --all-features
 
 test:
-    cargo +nightly test --no-default-features --features dev
+    cargo +stable test
     env RUSTFLAGS="-C target-cpu=native" cargo +nightly test --all-features
 
 miri:
@@ -48,4 +48,4 @@ generate-readme:
     cargo doc2readme
 
 mirai:
-    env MIRAI_FLAGS="--diag=library" cargo mirai --features dev
+    env MIRAI_FLAGS="--diag=library" cargo mirai
