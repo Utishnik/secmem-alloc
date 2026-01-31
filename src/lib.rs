@@ -9,6 +9,7 @@
 // on nightly, enable some unstable lints
 #![cfg_attr(
     feature = "nightly",
+    feature(strict_provenance_lints),
     deny(fuzzy_provenance_casts, lossy_provenance_casts)
 )]
 //! `secmem-alloc` is a crate designed allocate private/secret memory. It is
