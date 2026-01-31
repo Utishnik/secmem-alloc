@@ -20,17 +20,15 @@ all-features = true
 [features]
 default = ["std"]
 std = ["allocator-api2/std", "thiserror/std"]
-nightly_allocator_api = ["allocator-api2/nightly"]
 nightly_core_intrinsics = []
 nightly = [
-    "nightly_allocator_api",
     "nightly_core_intrinsics",
 ]
 # required features to run tests; additional features enable more tests
 dev = ["std"]
 
 [dependencies]
-allocator-api2 = { version = "0.2", default-features = false }
+allocator-api2 = { version = "0.4", default-features = false }
 cfg-if = "1.0"
 mirai-annotations = "1.12"
 thiserror = { version = "2", default-features = false }

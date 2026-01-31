@@ -1,5 +1,3 @@
-// https://github.com/rust-lang/rust/issues/32838
-#![cfg_attr(feature = "nightly_allocator_api", feature(allocator_api))]
 // for `volatile_memset`
 #![cfg_attr(feature = "nightly_core_intrinsics", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -23,8 +21,6 @@
 //! visible on the prompt; it is only to give an idea of how to use this crate.
 //!
 //! ```
-//! #![feature(allocator_api)]
-//! // requires `nightly_allocator_api` crate feature to be enabled and a nightly compiler
 //! use secmem_alloc::allocator_api::{Allocator, Global, Vec};
 //! use secmem_alloc::zeroizing_alloc::ZeroizeAlloc;
 //!
@@ -52,10 +48,6 @@
 //! written to swap.
 //!
 //! ```
-//! // requires no crate features and works on stable
-//! // if you enable the `nightly_allocator_api` crate feature, the following line is necessary
-//! #![feature(allocator_api)]
-//!
 //! use secmem_alloc::allocator_api::{Allocator, Box};
 //! use secmem_alloc::sec_alloc::SecStackSinglePageAlloc;
 //!
@@ -81,12 +73,6 @@
 //! - `std` (default): Enable functionality that requires `std`. Currently only
 //!   required for `Error` implements and required for tests. This feature is
 //!   enabled by default.
-//! - `nightly_allocator_api` (requires nightly): Use the nightly allocator api
-//!   from the standard library (actually the `core` crate), gated behind the
-//!   nightly-only feature `allocator_api`. When disabled, a copy of the
-//!   allocator api included in this crate, available through
-//!   `secmem_alloc::allocator_api`, will be used. This feature requires a
-//!   nightly compiler.
 //! - `nightly_core_intrinsics` (requires nightly): Use the intrinsics from the
 //!   standard library (actually the `core` crate), gated behind the
 //!   nightly-only feature `core_intrinsics`. This allows for a slightly faster
@@ -95,9 +81,7 @@
 //! - `nightly` (requires nightly): Enable all nightly-only features (i.e. the
 //!   above two). Enabling this feature is highly recommended when a nightly
 //!   compiler is available. This feature requires a nightly compiler.
-//! - `dev` (requires nightly): This feature enables all features required to
-//!   run the test-suite, and should only be enabled for that purpose. This
-//!   feature currently requires a nightly compiler.
+//! - `dev`: Used internally for running tests.
 //!
 //!
 //! # MSRV Policy
