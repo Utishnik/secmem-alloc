@@ -98,6 +98,7 @@ mod fallback {
     /// The caller *must* ensure that `ptr` is valid for writes of `len` bytes,
     /// see the [`std::ptr`] documentation. In particular this function is
     /// not atomic.
+    #[allow(dead_code)]
     pub unsafe fn zeroize_mem(mut ptr: *mut u8, len: usize) {
         precondition_memory_range!(ptr, len);
         for _i in 0..len {

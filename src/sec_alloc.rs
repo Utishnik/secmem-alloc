@@ -32,6 +32,8 @@ use core::cell::Cell;
 use core::ptr::{self, NonNull};
 use mirai_annotations::debug_checked_precondition;
 
+pub type StackOffset = Cell<usize>;
+
 /// Memory allocator for confidential memory. See the module level
 /// documentation.
 ///
@@ -86,6 +88,25 @@ pub struct SecStackSinglePageAlloc {
     // SAFETY INVARIANT: always a multiple of 8
     // SAFETY INVARIANT: at most page size (`self.page.page_size()`)
     stack_offset: Cell<usize>,
+}
+
+impl SecStackSinglePageAlloc {
+    pub fn add_offset(&self, add_off: usize) {
+        let get: usize = self.stack_offset.get();
+        self.stack_offset.set(get + add_off);
+    }
+    pub fn sub_offset(&self, sub_off: usize) {
+        let get: usize = self.stack_offset.get();
+        self.stack_offset.set(get - sub_off);
+    }
+    pub fn add_bytes(&self, add_cnt: usize) {
+        let get: usize = self.bytes.get();
+        self.bytes.set(get + add_cnt);
+    }
+    pub fn sub_bytes(&self, sub_cnt: usize) {
+        let get: usize = self.stack_offset.get();
+        self.bytes.set(get - sub_cnt);
+    }
 }
 
 impl SecStackSinglePageAlloc {
@@ -362,10 +383,8 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
 
             // SAFETY: rounded_req_size is a multiple of 8 (by rounding) so that
             // `self.stack_offset` stays a multiple of 8
-            self.stack_offset
-                .set(self.stack_offset.get() + rounded_req_size);
-
-            self.bytes.set(self.bytes.get() + rounded_req_size);
+            self.add_offset(rounded_req_size);
+            self.add_bytes(rounded_req_size);
             Ok(alloc_slice_ptr)
         } else {
             // slower path for large align
@@ -407,10 +426,8 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
             // of 8 SAFETY: `next_align_pageoffset + rounded_req_size` is the
             // first offset after the currently created allocation
             // (`alloc_slice_ptr`)
-            self.stack_offset
-                .set(next_align_pageoffset + rounded_req_size);
-
-            self.bytes.set(self.bytes.get() + rounded_req_size);
+            self.add_offset(rounded_req_size);
+            self.add_bytes(rounded_req_size);
             Ok(alloc_slice_ptr)
         }
     }
@@ -547,7 +564,7 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
                 zeroize_mem(new_alloc_end, size_decrease);
             }
             // decrement the number of allocated bytes by the allocation size reduction
-            self.bytes.set(self.bytes.get() - size_decrease);
+            self.sub_bytes(size_decrease);
 
             // if the allocation is the final allocation in our memory page, then we can
             // rewind the stack offset to limit memory fragmentation
@@ -555,8 +572,7 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
             // of 8
             if self.ptr_is_last_allocation(ptr, rounded_size) {
                 // SAFETY: `size_decrease` is a multiple of 8 so `self.stack_offset` remains so
-                self.stack_offset
-                    .set(self.stack_offset.get() - size_decrease);
+                self.sub_offset(size_decrease);
             }
 
             // create the pointer to the shrunken allocation
@@ -638,11 +654,10 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
                 // since both values are multiples of 8, `size_increase` is so too
                 let size_increase: usize = new_rounded_size - rounded_size;
                 // increase the number of allocated bytes by the allocation size increase
-                self.bytes.set(self.bytes.get() + size_increase);
+                self.add_bytes(size_increase);
                 // and the stack offset
                 // SAFETY: `size_increase` is a multiple of 8 so `self.stack_offset` remains so
-                self.stack_offset
-                    .set(self.stack_offset.get() + size_increase);
+                self.add_offset(size_increase);
 
                 // create the pointer to the grown allocation
                 let alloc_slice_ptr: *mut [u8] =
