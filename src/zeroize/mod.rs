@@ -71,13 +71,16 @@ mod asm_barier {
         // SAFETY: the caller must uphold the safety contract of `write_bytes`
         unsafe { ptr.write_bytes(0, len) };
         // Optimisation barier, so the writes can not be optimised out
-        unsafe {
-            core::arch::asm!(
-                "/* {0} */",
-                in(reg) ptr,
-                options(nostack, readonly, preserves_flags),
-            )
-        };
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            unsafe {
+                core::arch::asm!(
+                    "/* {0} */",
+                    in(reg) ptr,
+                    options(nostack, readonly, preserves_flags),
+                )
+            };
+        }
     }
 }
 

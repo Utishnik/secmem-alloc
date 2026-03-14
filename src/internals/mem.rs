@@ -45,6 +45,8 @@ cfg_if::cfg_if! {
     } else if #[cfg(windows)] {
         mod windows;
         pub use windows::PageAllocError;
+    } else if #[cfg(target_arch = "wasm32")]{
+        mod wasm;
     }
     else
     {
