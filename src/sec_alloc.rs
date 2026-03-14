@@ -325,7 +325,7 @@ unsafe impl Allocator for SecStackSinglePageAlloc {
         }
         // if rounding up to a multiple of 8 wraps a usize, the result will be 0 and
         // layout clearly doesn't fit our page, so we return an error
-        let rounded_req_size = align_up_usize(layout.size(),8);
+        let rounded_req_size = align_up_usize(layout.size(), 8);
         if unlikely(rounded_req_size == 0) {
             return Err(AllocError);
         }

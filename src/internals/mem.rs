@@ -39,14 +39,16 @@ impl Page {
 }
 
 cfg_if::cfg_if! {
-    if #[cfg(miri)] {
-        mod miri;
-        pub use miri::PageAllocError;
-    } else if #[cfg(unix)] {
+    if #[cfg(unix)] {
         mod unix;
         pub use unix::PageAllocError;
     } else if #[cfg(windows)] {
         mod windows;
         pub use windows::PageAllocError;
+    }
+    else
+    {
+        mod miri;
+        pub use miri::PageAllocError;
     }
 }
