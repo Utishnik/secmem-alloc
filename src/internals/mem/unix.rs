@@ -4,10 +4,33 @@ use super::Page;
 
 use core::ffi::c_void;
 use core::ptr::NonNull;
+use std::sync::LazyLock;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Return the page size on the running system using the `rustix` crate.
 pub fn page_size() -> usize {
     rustix::param::page_size()
+}
+
+const SYSTEM_PAGE_SIZE: bool = true;
+
+static PAGE_SIZE: LazyLock<AtomicUsize> = LazyLock::new(|| {
+    if SYSTEM_PAGE_SIZE == true {
+        page_size().into()
+    } else {
+        static PAGE_SIZE: usize = 65536; //wasm32 size
+        PAGE_SIZE.into()
+    }
+});
+
+pub fn page_size_set(val: usize) {
+    PAGE_SIZE.store(val, Ordering::Relaxed);
+}
+pub fn page_size_add(val: usize) {
+    PAGE_SIZE.fetch_add(val, Ordering::Relaxed);
+}
+pub fn page_size_sub(val: usize) {
+    PAGE_SIZE.fetch_sub(val, Ordering::Relaxed);
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
@@ -38,7 +61,7 @@ impl Page {
         use rustix::mm::{MapFlags, ProtFlags};
 
         let addr: *mut c_void = core::ptr::null_mut();
-        let page_size = page_size();
+        let page_size: usize = PAGE_SIZE.load(Ordering::Relaxed);
         let prot = ProtFlags::READ | ProtFlags::WRITE;
         // NORESERVE disables backing the memory map with swap space. It requires
         // `mlock` to be used on the resulting page before use. Redox, FreeBSD
